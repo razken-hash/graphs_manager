@@ -17,6 +17,13 @@ class Graph {
     );
   }
 
+  void removeNode(Node node) {
+    for (Node nd in nodes) {
+      nd.unlinkToNode(node);
+    }
+    nodes.remove(node);
+  }
+
   void linkNodes(Node node1, Node node2) {
     node1.linkToNode(node2);
     node2.linkToNode(node1);
@@ -34,4 +41,7 @@ class Graph {
       return null;
     }
   }
+
+  @override
+  String toString() => 'Graph(nodes: $nodes, size: $size)';
 }

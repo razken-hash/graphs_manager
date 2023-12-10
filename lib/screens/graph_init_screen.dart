@@ -3,6 +3,7 @@ import 'package:graph_manager/managers/graph_manager.dart';
 import 'package:graph_manager/model/graph.dart';
 import 'package:graph_manager/model/node.dart';
 import 'package:graph_manager/screens/check_box.dart';
+import 'package:graph_manager/screens/graph_screen.dart';
 import 'package:graph_manager/utils/colors.dart';
 
 class GraphInitScreen extends StatefulWidget {
@@ -14,111 +15,163 @@ class GraphInitScreen extends StatefulWidget {
 
 class _GraphInitScreenState extends State<GraphInitScreen> {
   late Graph graph = Graph(
-    size: 8,
+    size: 5,
   );
-
+  late List<Node> articulationPoints;
   @override
   void initState() {
+    setState(() {
+      articulationPoints = graph.nodes;
+    });
     super.initState();
   }
 
-  List<Node> result = [];
+  final GraphManager _graphManager = GraphManager();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FloatingActionButton(
+            child: const Icon(Icons.remove),
+            onPressed: () {
+              setState(() {
+                graph.size--;
+                graph.removeNode(graph.nodes.last);
+                articulationPoints = _graphManager.articulationNodes(graph);
+              });
+            },
+          ),
+          FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {
+              setState(() {
+                graph.size++;
+                graph.nodes.add(Node.empty(
+                    name: String.fromCharCode(
+                        'A'.codeUnitAt(0) + graph.size - 1)));
+                articulationPoints = _graphManager.articulationNodes(graph);
+              });
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            SizedBox(
-              child: DataTable(
-                border: TableBorder.all(
-                  width: 5.0,
-                  color: grey,
+            const Center(
+              child: Text(
+                "GRAPHS, ARTICULATION POINTS CHECKER",
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  color: mainColor,
                 ),
-                showCheckboxColumn: false,
-                columns: [
-                  const DataColumn(
-                      label: SizedBox(
-                    height: 120,
-                    width: 60,
-                  )),
-                  ...List.generate(
-                    graph.size,
-                    (index) => DataColumn(
-                      label: SizedBox(
-                        height: 60,
-                        width: 60,
-                        child: Center(
-                          child: Text(
-                            String.fromCharCode('A'.codeUnitAt(0) + index),
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: mainColor,
-                            ),
-                          ),
-                        ),
-                      ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  child: DataTable(
+                    border: TableBorder.all(
+                      width: 5.0,
+                      color: grey,
                     ),
-                  ),
-                ],
-                rows: List.generate(graph.size, (i) {
-                  Node node = graph.getNode(i)!;
-                  return DataRow(
-                    cells: [
-                      DataCell(
-                        SizedBox(
-                          height: 60,
-                          width: 60,
-                          child: Center(
-                            child: Text(
-                              node.name,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                color: mainColor,
+                    showCheckboxColumn: false,
+                    columns: [
+                      const DataColumn(
+                          label: SizedBox(
+                        height: 120,
+                        width: 60,
+                      )),
+                      ...List.generate(
+                        graph.size,
+                        (index) => DataColumn(
+                          label: SizedBox(
+                            height: 60,
+                            width: 60,
+                            child: Center(
+                              child: Text(
+                                String.fromCharCode('A'.codeUnitAt(0) + index),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w700,
+                                  color: mainColor,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      ...List.generate(
-                        graph.size,
-                        (j) => DataCell(
-                          SizedBox(
-                            height: 60,
-                            width: 60,
-                            child: Center(
-                              child: i == j
-                                  ? null
-                                  : GraphCheckBox(
-                                      value:
-                                          node.isLinkedTo(graph.getNode(j)!) ||
-                                              i == j,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          if (!value!) {
-                                            graph.linkNodes(
-                                                node, graph.getNode(j)!);
-                                          } else {
-                                            graph.unlinkNodes(
-                                                node, graph.getNode(j)!);
-                                          }
-                                        });
-                                      },
-                                    ),
+                    ],
+                    rows: List.generate(graph.size, (i) {
+                      Node node = graph.getNode(i)!;
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            SizedBox(
+                              height: 60,
+                              width: 60,
+                              child: Center(
+                                child: Text(
+                                  node.name,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                    color: mainColor,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ),
+                          ...List.generate(
+                            graph.size,
+                            (j) => DataCell(
+                              SizedBox(
+                                height: 60,
+                                width: 60,
+                                child: Center(
+                                  child: i == j
+                                      ? null
+                                      : GraphCheckBox(
+                                          value: node.isLinkedTo(
+                                                  graph.getNode(j)!) ||
+                                              i == j,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              if (!value!) {
+                                                graph.linkNodes(
+                                                    node, graph.getNode(j)!);
+                                              } else {
+                                                graph.unlinkNodes(
+                                                    node, graph.getNode(j)!);
+                                              }
+                                              articulationPoints = _graphManager
+                                                  .articulationNodes(graph);
+                                            });
+                                          },
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+                GraphScreen(
+                  graph: graph,
+                  articulationPoints: articulationPoints,
+                ),
+              ],
             ),
-            TextButton(
+            const SizedBox(),
+            /*TextButton(
               onPressed: () {
                 GraphManager graphManager = GraphManager();
                 setState(() {
@@ -135,13 +188,13 @@ class _GraphInitScreenState extends State<GraphInitScreen> {
               ),
             ),
             Text(
-              result.length.toString(),
+              result.toString(),
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: mainColor,
               ),
-            ),
+            ),*/
           ],
         ),
       ),

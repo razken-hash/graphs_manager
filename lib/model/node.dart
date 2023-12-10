@@ -34,5 +34,6 @@ class Node {
   }
 
   @override
-  String toString() => 'Node(name: $name, neighbors: $neighbors)';
+  String toString() => name;
+  // String toString() => 'Node(name: $name, neighbors: $neighbors)';
 }
