@@ -42,6 +42,23 @@ class Graph {
     }
   }
 
+  Graph clone(Graph graph) {
+    Graph g = Graph(size: graph.size);
+    for (Node n in g.nodes) {
+      for (Node nd in graph.nodes) {
+        for (Node nd2 in graph.nodes) {
+          if (n.name == nd.name && nd.isLinkedTo(nd2)) {
+            n.linkToNode(g.nodes
+                .where((element) => element.name == nd2.name)
+                .toList()
+                .first);
+          }
+        }
+      }
+    }
+    return g;
+  }
+
   @override
   String toString() => 'Graph(nodes: $nodes, size: $size)';
 }

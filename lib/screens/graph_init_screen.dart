@@ -49,9 +49,12 @@ class _GraphInitScreenState extends State<GraphInitScreen> {
             onPressed: () {
               setState(() {
                 graph.size++;
-                graph.nodes.add(Node.empty(
-                    name: String.fromCharCode(
-                        'A'.codeUnitAt(0) + graph.size - 1)));
+                graph.nodes.add(
+                  Node.empty(
+                    name:
+                        String.fromCharCode('A'.codeUnitAt(0) + graph.size - 1),
+                  ),
+                );
                 articulationPoints = _graphManager.articulationNodes(graph);
               });
             },
@@ -72,103 +75,158 @@ class _GraphInitScreenState extends State<GraphInitScreen> {
                 ),
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  child: DataTable(
-                    border: TableBorder.all(
-                      width: 5.0,
-                      color: grey,
-                    ),
-                    showCheckboxColumn: false,
-                    columns: [
-                      const DataColumn(
-                          label: SizedBox(
-                        height: 120,
-                        width: 60,
-                      )),
-                      ...List.generate(
-                        graph.size,
-                        (index) => DataColumn(
-                          label: SizedBox(
-                            height: 60,
-                            width: 60,
-                            child: Center(
-                              child: Text(
-                                String.fromCharCode('A'.codeUnitAt(0) + index),
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  color: mainColor,
-                                ),
-                              ),
-                            ),
-                          ),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      child: DataTable(
+                        border: TableBorder.all(
+                          width: 5.0,
+                          color: grey,
                         ),
-                      ),
-                    ],
-                    rows: List.generate(graph.size, (i) {
-                      Node node = graph.getNode(i)!;
-                      return DataRow(
-                        cells: [
-                          DataCell(
-                            SizedBox(
-                              height: 60,
-                              width: 60,
-                              child: Center(
-                                child: Text(
-                                  node.name,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    color: mainColor,
+                        showCheckboxColumn: false,
+                        columns: [
+                          const DataColumn(
+                              label: SizedBox(
+                            height: 120,
+                            width: 60,
+                          )),
+                          ...List.generate(
+                            graph.size,
+                            (index) => DataColumn(
+                              label: SizedBox(
+                                height: 60,
+                                width: 60,
+                                child: Center(
+                                  child: Text(
+                                    String.fromCharCode(
+                                        'A'.codeUnitAt(0) + index),
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                      color: mainColor,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                          ...List.generate(
-                            graph.size,
-                            (j) => DataCell(
-                              SizedBox(
-                                height: 60,
-                                width: 60,
-                                child: Center(
-                                  child: i == j
-                                      ? null
-                                      : GraphCheckBox(
-                                          value: node.isLinkedTo(
-                                                  graph.getNode(j)!) ||
-                                              i == j,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              if (!value!) {
-                                                graph.linkNodes(
-                                                    node, graph.getNode(j)!);
-                                              } else {
-                                                graph.unlinkNodes(
-                                                    node, graph.getNode(j)!);
-                                              }
-                                              articulationPoints = _graphManager
-                                                  .articulationNodes(graph);
-                                            });
-                                          },
-                                        ),
+                        ],
+                        rows: List.generate(graph.size, (i) {
+                          Node node = graph.getNode(i)!;
+                          return DataRow(
+                            cells: [
+                              DataCell(
+                                SizedBox(
+                                  height: 60,
+                                  width: 60,
+                                  child: Center(
+                                    child: Text(
+                                      node.name,
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700,
+                                        color: mainColor,
+                                      ),
+                                    ),
+                                  ),
                                 ),
+                              ),
+                              ...List.generate(
+                                graph.size,
+                                (j) => DataCell(
+                                  SizedBox(
+                                    height: 60,
+                                    width: 60,
+                                    child: Center(
+                                      child: i == j
+                                          ? null
+                                          : GraphCheckBox(
+                                              value: node.isLinkedTo(
+                                                      graph.getNode(j)!) ||
+                                                  i == j,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  if (!value!) {
+                                                    graph.linkNodes(node,
+                                                        graph.getNode(j)!);
+                                                  } else {
+                                                    graph.unlinkNodes(node,
+                                                        graph.getNode(j)!);
+                                                  }
+                                                  articulationPoints =
+                                                      _graphManager
+                                                          .articulationNodes(
+                                                              graph);
+                                                });
+                                              },
+                                            ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 100,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GraphScreen(
+                            graph: graph,
+                            articulationPoints: articulationPoints,
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Material(
+                            borderRadius: BorderRadius.circular(30),
+                            elevation: 10,
+                            shadowColor: const Color(0xFFFF8C3B),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  shadowColor: Colors.black,
+                                  backgroundColor: white,
+                                  padding: const EdgeInsets.all(30)),
+                              onPressed: () {},
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "Points d'articulations: ${articulationPoints.isEmpty ? "/" : ""}",
+                                    style: const TextStyle(
+                                      fontSize: 35,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  ...articulationPoints.map(
+                                    (e) => Text(
+                                      "${e.name}${e.name == articulationPoints.last.name ? "" : ", "}",
+                                      style: const TextStyle(
+                                        fontSize: 35,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ],
-                      );
-                    }),
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-                GraphScreen(
-                  graph: graph,
-                  articulationPoints: articulationPoints,
-                ),
-              ],
+              ),
             ),
             const SizedBox(),
             /*TextButton(
